@@ -65,6 +65,8 @@ projects:
             rootDir: vetcare-clinica
             healthCheckPath: /actuator/health
             envVars:
+              - key: VETCARE_DOWNSTREAM_TIMEOUT_MS
+                value: 150000
               - key: VETCARE_MONGO_URI
                 sync: false
               - key: VETCARE_JWT_SECRET
@@ -91,6 +93,8 @@ projects:
             rootDir: vetcare-farmacia
             healthCheckPath: /actuator/health
             envVars:
+              - key: VETCARE_DOWNSTREAM_TIMEOUT_MS
+                value: 150000
               - key: VETCARE_MONGO_URI
                 sync: false
               - key: VETCARE_JWT_SECRET
@@ -112,6 +116,8 @@ projects:
             rootDir: vetcare-facturacion
             healthCheckPath: /actuator/health
             envVars:
+              - key: VETCARE_DOWNSTREAM_TIMEOUT_MS
+                value: 150000
               - key: VETCARE_MONGO_URI
                 sync: false
               - key: VETCARE_JWT_SECRET
@@ -133,6 +139,8 @@ projects:
             rootDir: vetcare-web
             healthCheckPath: /actuator/health
             envVars:
+              - key: VETCARE_SERVICES_TIMEOUT_MS
+                value: 180000
               - key: VETCARE_USUARIOS_URL
                 fromService:
                   type: web
