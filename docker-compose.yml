@@ -1,0 +1,22 @@
+# Base de datos local para desarrollo.
+# Un solo MongoDB con una base por servicio (patron database-per-service):
+# vetcare_usuarios, vetcare_pacientes, vetcare_clinica, vetcare_farmacia y
+# vetcare_facturacion. En produccion cada servicio apunta a su propio cluster.
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: vetcare-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - vetcare-mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  vetcare-mongo-data:

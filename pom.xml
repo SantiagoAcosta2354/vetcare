@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<!--
+	  Proyecto agregador del monorepo. No hereda de Spring Boot a proposito:
+	  cada servicio conserva su propio parent y su propio ciclo de vida, para
+	  poder compilarse y desplegarse por separado.
+
+	  Sirve para dos cosas:
+	    1. Que el IDE muestre un solo proyecto VetCare con sus modulos dentro.
+	    2. Compilar y probar todo desde la raiz con un solo comando:
+	         mvn test
+	         mvn -pl vetcare-usuarios spring-boot:run
+	-->
+	<groupId>com.vetcare</groupId>
+	<artifactId>vetcare</artifactId>
+	<version>1.0.0</version>
+	<packaging>pom</packaging>
+
+	<name>VetCare</name>
+	<description>Plataforma distribuida para la gestion clinica y comercial de una clinica veterinaria</description>
+
+	<modules>
+		<module>vetcare-usuarios</module>
+		<module>vetcare-pacientes</module>
+	</modules>
+</project>

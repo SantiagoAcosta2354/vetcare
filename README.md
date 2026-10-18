@@ -61,26 +61,33 @@ no protege la operacion. La ruta directa con un rol sin autorizacion responde 40
 
 ## Puesta en marcha local
 
-Requisitos: Java 21, Maven 3.9, MongoDB (local o Atlas) y, para el despliegue,
-Docker.
+Requisitos: Java 21, Maven 3.9, Docker Desktop (para MongoDB local) y, para el
+despliegue, la cuenta de Render.
 
-1. Definir el secreto compartido en la sesion antes de arrancar cualquier
-   servicio:
-
-```powershell
-$env:VETCARE_JWT_SECRET = "vetcare-clave-de-desarrollo-cambiar-en-produccion-2026"
-```
-
-2. Arrancar cada servicio en su carpeta y comprobar su salud:
+1. Levantar MongoDB. `docker-compose.yml` crea un contenedor con las cinco bases
+   del proyecto:
 
 ```powershell
-cd vetcare-usuarios
-mvn spring-boot:run
-# http://localhost:8081/actuator/health
+cd C:\workspace-vetcare
+docker compose up -d mongo
 ```
 
-3. Repetir con `vetcare-pacientes` (8082). El orden importa: sin cuentas no hay
-   permisos que probar y sin pacientes no hay a quien atender.
+Si no usa Docker, defina `VETCARE_MONGO_URI` con su cadena de MongoDB Atlas
+antes de arrancar; el valor por defecto apunta a `localhost:27017`.
+
+2. Arrancar un servicio con el script, que define el secreto compartido y
+   verifica MongoDB antes de ejecutar:
+
+```powershell
+.\arrancar-vetcare.ps1 usuarios     # http://localhost:8081/actuator/health
+.\arrancar-vetcare.ps1 pacientes    # http://localhost:8082/actuator/health
+```
+
+Tambien se puede arrancar a mano desde la carpeta del modulo con
+`mvn spring-boot:run`, definiendo antes `VETCARE_JWT_SECRET`.
+
+3. El orden importa: sin cuentas no hay permisos que probar y sin pacientes no
+   hay a quien atender.
 
 4. Entrar con la cuenta de administrador (`admin@vetcare.co` / `Admin1234*`) y
    verificar que cada perfil ve unicamente sus areas.
