@@ -47,9 +47,31 @@ public class OwnerService {
                 .orElseThrow(() -> new ResourceNotFoundException("No existe un dueno con el documento " + document)));
     }
 
+    /**
+     * Ficha del dueno autenticado.
+     *
+     * Si la cuenta aun no esta vinculada, se busca por correo y se vincula: es el
+     * caso normal cuando recepcion registra al dueno y despues el dueno crea su
+     * cuenta con el mismo correo.
+     */
     public OwnerResponse findByUserId(String userId) {
         return OwnerResponse.from(ownerRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("El usuario no tiene ficha de dueno registrada")));
+    }
+
+    public OwnerResponse findByUserId(String userId, String email) {
+        Owner owner = ownerRepository.findByUserId(userId).orElse(null);
+        if (owner == null && email != null && !email.isBlank()) {
+            owner = ownerRepository.findByEmailIgnoreCase(email).orElse(null);
+            if (owner != null && owner.getUserId() == null) {
+                owner.setUserId(userId);
+                owner = ownerRepository.save(owner);
+            }
+        }
+        if (owner == null) {
+            throw new ResourceNotFoundException("El usuario no tiene ficha de dueno registrada");
+        }
+        return OwnerResponse.from(owner);
     }
 
     public OwnerResponse create(OwnerRequest request, String actor) {

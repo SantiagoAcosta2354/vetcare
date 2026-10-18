@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Farmacia')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container py-4">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <h4 class="mb-3">Farmacia</h4>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card mb-3">
+                <div class="card-header bg-white fw-semibold">Formulas por despachar</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="p : ${pendingPrescriptions}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong th:text="${p.petName}">Luna</strong>
+                                <div class="small text-muted" th:text="${p.statusLabel}">Emitida</div>
+                                <ul class="small mb-0">
+                                    <li th:each="i : ${p.items}" th:text="${i.medicationName} + ' · ' + ${i.quantity} + ' unidades'"></li>
+                                </ul>
+                            </div>
+                            <form method="post" th:action="@{/farmacia/despachar/{id}(id=${p.id})}">
+                                <button class="btn btn-sm btn-primary" type="submit">Despachar</button>
+                            </form>
+                        </div>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(pendingPrescriptions)}">No hay formulas pendientes</li>
+                </ul>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header bg-white fw-semibold">Pendientes por stock</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center" th:each="d : ${dispensings}">
+                        <div>
+                            <strong th:text="${d.petName}">Luna</strong>
+                            <div class="small text-muted" th:text="'Formula ' + ${d.prescriptionId}">Formula</div>
+                        </div>
+                        <form method="post" th:action="@{/farmacia/reintentar/{id}(id=${d.id})}">
+                            <button class="btn btn-sm btn-outline-primary" type="submit">Reintentar</button>
+                        </form>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(dispensings)}">Nada pendiente por stock</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-white fw-semibold">Recibir mercancia</div>
+                <div class="card-body">
+                    <form class="row g-2" method="post" th:action="@{/farmacia/compra}">
+                        <div class="col-12">
+                            <select class="form-select form-select-sm" name="medicationId" required>
+                                <option value="">Medicamento...</option>
+                                <option th:each="m : ${medications}" th:value="${m.id}" th:text="${m.name}">Med</option>
+                            </select>
+                        </div>
+                        <div class="col-5"><input class="form-control form-control-sm" name="batchNumber" placeholder="Lote" required></div>
+                        <div class="col-4"><input class="form-control form-control-sm" name="expiresAt" type="date" required></div>
+                        <div class="col-3"><input class="form-control form-control-sm" name="quantity" type="number" min="1" placeholder="Cant." required></div>
+                        <div class="col-12"><input class="form-control form-control-sm" name="supplier" placeholder="Proveedor"></div>
+                        <div class="col-12"><button class="btn btn-sm btn-outline-primary" type="submit">Registrar entrada</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card mb-3">
+                <div class="card-header bg-white fw-semibold">Existencias</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>Medicamento</th><th>Existencia</th><th>Minimo</th><th></th></tr></thead>
+                        <tbody>
+                        <tr th:each="m : ${medications}">
+                            <td>
+                                <div th:text="${m.name}">Med</div>
+                                <div class="small text-muted" th:text="${m.presentation}">Tableta</div>
+                            </td>
+                            <td th:text="${m.available}">0</td>
+                            <td th:text="${m.stockMin}">0</td>
+                            <td>
+                                <span class="badge bg-danger" th:if="${m.lowStock}">Bajo</span>
+                                <span class="badge bg-success" th:unless="${m.lowStock}">OK</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(medications)}"><td colspan="4" class="text-center text-muted py-3">Sin medicamentos</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-white fw-semibold">Alertas</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="a : ${alerts}">
+                        <div class="d-flex justify-content-between">
+                            <strong th:text="${a.medicationName}">Med</strong>
+                            <span class="badge bg-warning text-dark" th:text="${a.type}">TIPO</span>
+                        </div>
+                        <div class="small text-muted" th:text="${a.message}">Mensaje</div>
+                        <div class="small text-muted" th:if="${a.expiresAt}" th:text="'Vence ' + ${a.expiresAt}"></div>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(alerts)}">Sin alertas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

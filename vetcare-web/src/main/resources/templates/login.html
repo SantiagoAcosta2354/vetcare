@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Ingresar')}"></head>
+<body>
+<div class="d-flex align-items-center justify-content-center" style="min-height:100vh">
+    <div class="card p-4" style="width: 26rem">
+        <div class="text-center mb-4">
+            <div style="font-size:2rem">🐾</div>
+            <h4 class="mb-0">VetCare</h4>
+            <p class="text-muted small mb-0">Gestion clinica y comercial</p>
+        </div>
+
+        <div class="alert alert-danger" th:if="${param.error}">
+            Correo o contrasena incorrectos, o el servicio de usuarios no responde.
+        </div>
+        <div class="alert alert-success" th:if="${param.logout}">
+            La sesion se cerro correctamente.
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+                <label class="form-label" for="username">Correo</label>
+                <input class="form-control" id="username" name="username" type="email" required autofocus
+                       placeholder="admin@vetcare.co">
+            </div>
+            <div class="mb-3">
+                <label class="form-label" for="password">Contrasena</label>
+                <input class="form-control" id="password" name="password" type="password" required
+                       placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Ingresar</button>
+        </form>
+
+        <hr class="my-4">
+        <p class="small-label mb-2">Cuentas de demostracion</p>
+        <ul class="small text-muted ps-3 mb-0">
+            <li>admin@vetcare.co · Admin1234*</li>
+            <li>recepcion@vetcare.co · Demo1234*</li>
+            <li>veterinario@vetcare.co · Demo1234*</li>
+            <li>laboratorio@vetcare.co · Demo1234*</li>
+            <li>farmacia@vetcare.co · Demo1234*</li>
+            <li>dueno@vetcare.co · Demo1234*</li>
+        </ul>
+    </div>
+</div>
+</body>
+</html>

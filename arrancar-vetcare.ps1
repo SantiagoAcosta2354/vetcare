@@ -2,6 +2,10 @@
 #
 #   .\arrancar-vetcare.ps1                 -> vetcare-usuarios (8081)
 #   .\arrancar-vetcare.ps1 pacientes       -> vetcare-pacientes (8082)
+#   .\arrancar-vetcare.ps1 clinica         -> vetcare-clinica (8083)
+#   .\arrancar-vetcare.ps1 farmacia        -> vetcare-farmacia (8084)
+#   .\arrancar-vetcare.ps1 facturacion     -> vetcare-facturacion (8085)
+#   .\arrancar-vetcare.ps1 web             -> vetcare-web (8080)
 #
 # Se encarga de tres cosas que suelen fallar a mano: definir el secreto
 # compartido, verificar que MongoDB responda y ejecutar el servicio en su carpeta.

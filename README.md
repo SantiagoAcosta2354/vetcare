@@ -14,6 +14,15 @@ Monorepo: una carpeta raiz con un directorio por servicio y un unico repositorio
 de Git. Cada servicio tiene su propio `pom.xml`, su `Dockerfile` y su base de
 datos; se puede compilar y desplegar por separado.
 
+El `pom.xml` de la raiz es un **agregador** (`packaging: pom`): no hereda de
+Spring Boot, solo declara los modulos. Sirve para que el IDE muestre un solo
+proyecto VetCare con sus modulos dentro y para compilar todo con un comando:
+
+```powershell
+mvn test                                  # compila y prueba los modulos
+mvn -pl vetcare-usuarios spring-boot:run  # arranca uno solo
+```
+
 | Servicio | Puerto | Base de datos | Responsabilidad |
 |---|---|---|---|
 | `vetcare-usuarios` | 8081 | `vetcare_usuarios` | Cuentas, perfiles, autenticacion y emision del token |
@@ -79,8 +88,12 @@ antes de arrancar; el valor por defecto apunta a `localhost:27017`.
    verifica MongoDB antes de ejecutar:
 
 ```powershell
-.\arrancar-vetcare.ps1 usuarios     # http://localhost:8081/actuator/health
-.\arrancar-vetcare.ps1 pacientes    # http://localhost:8082/actuator/health
+.\arrancar-vetcare.ps1 usuarios     # 8081
+.\arrancar-vetcare.ps1 pacientes    # 8082
+.\arrancar-vetcare.ps1 clinica      # 8083
+.\arrancar-vetcare.ps1 farmacia     # 8084
+.\arrancar-vetcare.ps1 facturacion  # 8085
+.\arrancar-vetcare.ps1 web          # 8080  <- abrir en el navegador
 ```
 
 Tambien se puede arrancar a mano desde la carpeta del modulo con
@@ -98,12 +111,24 @@ Tambien se puede arrancar a mano desde la carpeta del modulo con
 |---|---|---|
 | `vetcare-usuarios` | Terminado | Cuentas, seis roles, JWT, auditoria de cambios, 13 pruebas |
 | `vetcare-pacientes` | Terminado | Duenos, mascotas, sedes, agenda con disponibilidad, 12 pruebas |
-| `vetcare-clinica` | Pendiente | — |
-| `vetcare-farmacia` | Pendiente | — |
-| `vetcare-facturacion` | Pendiente | — |
-| `vetcare-web` | Pendiente | — |
+| `vetcare-clinica` | Terminado | Historia, formulas, examenes, vacunas y cierre inmutable, 14 pruebas |
+| `vetcare-farmacia` | Terminado | Catalogo, lotes FEFO, despachos y alertas, 10 pruebas |
+| `vetcare-facturacion` | Terminado | Tarifas, facturas, pagos, anulaciones y cartera, 8 pruebas |
+| `vetcare-web` | Terminado | Thymeleaf + Bootstrap con las nueve pantallas por perfil |
 
-El avance se mide por servicio desplegado y demostrable, no por lineas de codigo.
+Cincuenta y siete pruebas unitarias en total. El avance se mide por servicio
+demostrable, no por lineas de codigo.
+
+## Datos de demostracion
+
+Al arrancar por primera vez, los servicios crean lo minimo para mostrar el flujo
+completo: la sede **Sede Centro**, la duena **Ana Perez** (CC 1020304050) con la
+paciente **Luna**, cuatro medicamentos con lote vigente, cinco vacunas con su
+esquema y seis cuentas, una por perfil.
+
+El flujo de la sustentacion es: agendar (recepcion) -> atender y formular
+(veterinario) -> despachar (farmacia) -> registrar resultado (laboratorio) ->
+facturar y cobrar (recepcion) -> consultar (dueno).
 
 ## Despliegue en Render
 

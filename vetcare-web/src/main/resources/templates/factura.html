@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Factura')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container py-4">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <a class="small text-decoration-none" th:href="@{/facturacion}">← Facturacion</a>
+
+    <div class="d-flex justify-content-between align-items-start mt-2 mb-3">
+        <div>
+            <h4 class="mb-0" th:text="'Factura ' + ${invoice.number}">FV-000001</h4>
+            <p class="text-muted small mb-0"
+               th:text="${invoice.petName} + ' · ' + ${invoice.ownerName} + ' · ' + ${invoice.consultationDate}">Luna</p>
+        </div>
+        <span class="badge fs-6"
+              th:classappend="${invoice.status == 'PAGADA'} ? ' bg-success' : (${invoice.status == 'ANULADA'} ? ' bg-secondary' : ' bg-warning text-dark')"
+              th:text="${invoice.statusLabel}">Emitida</span>
+    </div>
+
+    <div class="alert alert-secondary" th:if="${invoice.cancelReason}">
+        <strong>Anulada:</strong> <span th:text="${invoice.cancelReason}"></span>
+    </div>
+
+    <div class="card mb-3">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Descripcion</th><th>Tipo</th><th>Cant.</th><th>Unitario</th><th>IVA</th><th>Total</th></tr></thead>
+                <tbody>
+                <tr th:each="i : ${invoice.items}">
+                    <td th:text="${i.description}">Consulta</td>
+                    <td class="small text-muted" th:text="${i.type}">SERVICIO</td>
+                    <td th:text="${i.quantity}">1</td>
+                    <td th:text="'$ ' + ${i.unitPrice}">0</td>
+                    <td th:text="'$ ' + ${i.tax}">0</td>
+                    <td th:text="'$ ' + ${i.total}">0</td>
+                </tr>
+                </tbody>
+                <tfoot>
+                <tr><th colspan="5" class="text-end">Subtotal</th><th th:text="'$ ' + ${invoice.subtotal}">0</th></tr>
+                <tr><th colspan="5" class="text-end">IVA</th><th th:text="'$ ' + ${invoice.taxTotal}">0</th></tr>
+                <tr><th colspan="5" class="text-end">Total</th><th th:text="'$ ' + ${invoice.total}">0</th></tr>
+                <tr><th colspan="5" class="text-end">Pagado</th><th th:text="'$ ' + ${invoice.paid}">0</th></tr>
+                <tr><th colspan="5" class="text-end">Saldo</th><th th:text="'$ ' + ${invoice.balance}">0</th></tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header bg-white fw-semibold">Pagos</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between" th:each="p : ${payments}">
+                        <div>
+                            <span th:text="'$ ' + ${p.amount}">0</span>
+                            <span class="small text-muted" th:text="' · ' + ${p.method}"></span>
+                            <div class="small text-muted" th:if="${p.reference}" th:text="${p.reference}"></div>
+                        </div>
+                        <span class="badge" th:classappend="${p.status == 'APLICADO'} ? ' bg-success' : ' bg-secondary'"
+                              th:text="${p.status}">APLICADO</span>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(payments)}">Sin pagos registrados</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card mb-3" th:if="${invoice.status == 'EMITIDA'}">
+                <div class="card-header bg-white fw-semibold">Registrar pago</div>
+                <div class="card-body">
+                    <form class="row g-2" method="post" th:action="@{/facturacion/{id}/pago(id=${invoice.id})}">
+                        <div class="col-5"><input class="form-control form-control-sm" name="amount" type="number" step="0.01" placeholder="Valor" required></div>
+                        <div class="col-4">
+                            <select class="form-select form-select-sm" name="method">
+                                <option value="EFECTIVO">Efectivo</option>
+                                <option value="TARJETA">Tarjeta</option>
+                                <option value="TRANSFERENCIA">Transferencia</option>
+                            </select>
+                        </div>
+                        <div class="col-3"><input class="form-control form-control-sm" name="reference" placeholder="Ref."></div>
+                        <div class="col-12"><button class="btn btn-sm btn-primary" type="submit">Registrar pago</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card" th:if="${invoice.status == 'EMITIDA' and currentUser.hasRole('ADMIN')}">
+                <div class="card-header bg-white fw-semibold">Anular factura</div>
+                <div class="card-body">
+                    <form class="row g-2" method="post" th:action="@{/facturacion/{id}/anular(id=${invoice.id})}">
+                        <div class="col-8"><input class="form-control form-control-sm" name="reason" placeholder="Motivo de la anulacion" required></div>
+                        <div class="col-4"><button class="btn btn-sm btn-danger w-100" type="submit">Anular</button></div>
+                    </form>
+                    <p class="small text-muted mb-0 mt-2">Solo se anula si no tiene pagos aplicados.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

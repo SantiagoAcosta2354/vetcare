@@ -25,5 +25,9 @@
 	<modules>
 		<module>vetcare-usuarios</module>
 		<module>vetcare-pacientes</module>
+		<module>vetcare-clinica</module>
+		<module>vetcare-farmacia</module>
+		<module>vetcare-facturacion</module>
+		<module>vetcare-web</module>
 	</modules>
 </project>

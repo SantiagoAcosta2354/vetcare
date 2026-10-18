@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Historia clinica')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container py-4">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+            <a class="small text-decoration-none" th:href="@{/atencion}">← Atencion</a>
+            <h4 class="mb-0 mt-1" th:text="${record.petName} + ' · ' + ${record.ownerName}">Luna</h4>
+            <p class="text-muted small mb-0"
+               th:text="${record.reason} + ' · ' + ${record.professionalName}">Motivo</p>
+        </div>
+        <span class="badge fs-6" th:classappend="${record.status == 'ABIERTA'} ? ' bg-success' : ' bg-secondary'"
+              th:text="${record.statusLabel}">Abierta</span>
+    </div>
+
+    <div class="alert alert-secondary" th:if="${record.status == 'CERRADA'}">
+        <strong>Historia cerrada.</strong> No admite cambios.
+        <span th:if="${record.closureNote}" th:text="' ' + ${record.closureNote}"></span>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+
+            <div class="card mb-3">
+                <div class="card-header bg-white fw-semibold">Signos vitales</div>
+                <div class="card-body">
+                    <div class="row g-2 mb-3 small text-muted" th:if="${record.weightKg != null}">
+                        <div class="col-6" th:text="'Peso: ' + ${record.weightKg} + ' kg'">Peso</div>
+                        <div class="col-6" th:text="'Temperatura: ' + ${record.temperatureC} + ' °C'">Temp</div>
+                        <div class="col-6" th:text="'FC: ' + ${record.heartRate} + ' lpm'">FC</div>
+                        <div class="col-6" th:text="'FR: ' + ${record.respiratoryRate} + ' rpm'">FR</div>
+                    </div>
+                    <form class="row g-2" method="post" th:action="@{/atencion/registro/{id}/signos(id=${record.id})}"
+                          th:if="${record.status == 'ABIERTA'}">
+                        <div class="col-6"><input class="form-control form-control-sm" name="weightKg" placeholder="Peso (kg)" type="number" step="0.1"></div>
+                        <div class="col-6"><input class="form-control form-control-sm" name="temperatureC" placeholder="Temperatura (°C)" type="number" step="0.1"></div>
+                        <div class="col-6"><input class="form-control form-control-sm" name="heartRate" placeholder="FC (lpm)" type="number"></div>
+                        <div class="col-6"><input class="form-control form-control-sm" name="respiratoryRate" placeholder="FR (rpm)" type="number"></div>
+                        <div class="col-12"><button class="btn btn-sm btn-outline-primary" type="submit">Guardar signos</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header bg-white fw-semibold">Diagnostico y tratamiento</div>
+                <div class="card-body">
+                    <div th:if="${record.diagnosis != null}" class="mb-3">
+                        <div class="small-label">Diagnostico</div>
+                        <p class="mb-2" th:text="${record.diagnosis}">Diagnostico</p>
+                        <div class="small-label">Tratamiento</div>
+                        <p class="mb-0" th:text="${record.treatmentDescription}">Tratamiento</p>
+                    </div>
+                    <form class="row g-2" method="post" th:action="@{/atencion/registro/{id}/diagnostico(id=${record.id})}"
+                          th:if="${record.status == 'ABIERTA'}">
+                        <div class="col-12"><textarea class="form-control form-control-sm" name="diagnosis" rows="2" placeholder="Diagnostico" required></textarea></div>
+                        <div class="col-12"><textarea class="form-control form-control-sm" name="treatmentDescription" rows="2" placeholder="Tratamiento" required></textarea></div>
+                        <div class="col-4"><input class="form-control form-control-sm" name="treatmentDurationDays" type="number" min="1" placeholder="Dias"></div>
+                        <div class="col-8"><input class="form-control form-control-sm" name="treatmentIndications" placeholder="Indicaciones"></div>
+                        <div class="col-12"><button class="btn btn-sm btn-outline-primary" type="submit">Guardar diagnostico</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-3" th:if="${record.status == 'ABIERTA'}">
+                <div class="card-header bg-white fw-semibold">Formula</div>
+                <div class="card-body">
+                    <form class="row g-2" method="post" th:action="@{/atencion/registro/{id}/formula(id=${record.id})}">
+                        <div class="col-12">
+                            <select class="form-select form-select-sm" name="medicationId" required>
+                                <option value="">Medicamento del catalogo de farmacia...</option>
+                                <option th:each="m : ${medications}" th:value="${m.id}"
+                                        th:text="${m.name} + ' (existencia ' + ${m.available} + ')'">Med</option>
+                            </select>
+                        </div>
+                        <div class="col-4"><input class="form-control form-control-sm" name="dose" placeholder="Dosis" required></div>
+                        <div class="col-4"><input class="form-control form-control-sm" name="frequency" placeholder="Frecuencia"></div>
+                        <div class="col-2"><input class="form-control form-control-sm" name="durationDays" type="number" min="1" placeholder="Dias"></div>
+                        <div class="col-2"><input class="form-control form-control-sm" name="quantity" type="number" min="1" value="1" required></div>
+                        <div class="col-12"><button class="btn btn-sm btn-outline-primary" type="submit">Emitir formula</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-3" th:if="${record.status == 'ABIERTA'}">
+                <div class="card-header bg-white fw-semibold">Examen y vacuna</div>
+                <div class="card-body">
+                    <form class="row g-2 mb-3" method="post" th:action="@{/atencion/registro/{id}/examen(id=${record.id})}">
+                        <div class="col-6"><input class="form-control form-control-sm" name="examName" placeholder="Examen (hemograma, perfil...)" required></div>
+                        <div class="col-4"><input class="form-control form-control-sm" name="notes" placeholder="Observaciones"></div>
+                        <div class="col-2"><button class="btn btn-sm btn-outline-primary w-100" type="submit">Ordenar</button></div>
+                    </form>
+                    <form class="row g-2" method="post" th:action="@{/atencion/registro/{id}/vacuna(id=${record.id})}">
+                        <div class="col-5">
+                            <select class="form-select form-select-sm" name="vaccineId" required>
+                                <option value="">Vacuna...</option>
+                                <option th:each="v : ${vaccines}" th:value="${v.id}"
+                                        th:text="${v.name} + ' · refuerzo ' + ${v.nextDoseDays} + ' d'">Vacuna</option>
+                            </select>
+                        </div>
+                        <div class="col-3"><input class="form-control form-control-sm" name="batch" placeholder="Lote"></div>
+                        <div class="col-3"><input class="form-control form-control-sm" name="appliedAt" type="date" required></div>
+                        <div class="col-1"><button class="btn btn-sm btn-outline-primary w-100" type="submit">Aplicar</button></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card" th:if="${record.status == 'ABIERTA'}">
+                <div class="card-header bg-white fw-semibold">Cerrar historia</div>
+                <div class="card-body">
+                    <form class="row g-2" method="post" th:action="@{/atencion/registro/{id}/cerrar(id=${record.id})}"
+                          onsubmit="return confirm('Cerrar la historia? Despues no se podra editar.');">
+                        <div class="col-8"><input class="form-control form-control-sm" name="note" placeholder="Nota de cierre (opcional)"></div>
+                        <div class="col-4"><button class="btn btn-sm btn-danger w-100" type="submit">Cerrar historia</button></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card mb-3">
+                <div class="card-header bg-white fw-semibold">Formulas de esta consulta</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="p : ${prescriptions}">
+                        <div class="d-flex justify-content-between">
+                            <strong th:text="${#lists.size(p.items)} + ' medicamento(s)'">1</strong>
+                            <span class="badge" th:classappend="${p.status == 'DESPACHADA'} ? ' bg-success' : ' bg-warning text-dark'"
+                                  th:text="${p.statusLabel}">Emitida</span>
+                        </div>
+                        <ul class="small text-muted mb-0 mt-1">
+                            <li th:each="i : ${p.items}" th:text="${i.medicationName} + ' · ' + ${i.dose} + ' · ' + ${i.quantity} + ' unidades'"></li>
+                        </ul>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(prescriptions)}">Sin formulas</li>
+                </ul>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header bg-white fw-semibold">Examenes del paciente</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="l : ${labOrders}">
+                        <div class="d-flex justify-content-between">
+                            <span th:text="${l.examName}">Hemograma</span>
+                            <span class="badge" th:classappend="${l.status == 'ENTREGADO'} ? ' bg-success' : ' bg-secondary'"
+                                  th:text="${l.statusLabel}">Pendiente</span>
+                        </div>
+                        <div class="small text-muted" th:if="${l.resultValues}" th:text="'Resultado: ' + ${l.resultValues}"></div>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(labOrders)}">Sin examenes</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-white fw-semibold">Vacunas aplicadas</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between" th:each="v : ${vaccinations}">
+                        <span th:text="${v.vaccineName}">Rabia</span>
+                        <span class="small text-muted" th:text="'Aplicada ' + ${v.appliedAt} + ' · proxima ' + ${v.nextDoseAt}"></span>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(vaccinations)}">Sin vacunas registradas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

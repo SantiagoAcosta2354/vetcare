@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Atencion')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container py-4">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="mb-0">Atencion clinica</h4>
+            <p class="text-muted small mb-0" th:text="'Citas de hoy ' + ${date}"></p>
+        </div>
+        <a class="btn btn-sm btn-outline-secondary" th:href="@{/agenda}">Agenda</a>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Hora</th><th>Paciente</th><th>Dueno</th><th>Motivo</th><th>Estado</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="item : ${appointments}">
+                    <td th:text="${item.startTime}">09:00</td>
+                    <td>
+                        <div class="fw-semibold" th:text="${item.petName}">Luna</div>
+                        <div class="small text-muted" th:text="${item.petSpecies}">CANINO</div>
+                    </td>
+                    <td th:text="${item.ownerName}">Ana</td>
+                    <td class="small" th:text="${item.reason}">Control</td>
+                    <td><span class="badge badge-soft" th:text="${item.statusLabel}">Confirmada</span></td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-primary" th:href="@{/atencion/{id}(id=${item.id})}">
+                            <i class="bi bi-clipboard2-pulse"></i> Atender
+                        </a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(appointments)}">
+                    <td colspan="6" class="text-center text-muted py-4">No hay citas para hoy</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

@@ -15,6 +15,8 @@ public interface OwnerRepository extends MongoRepository<Owner, String> {
 
     Optional<Owner> findByUserId(String userId);
 
+    Optional<Owner> findByEmailIgnoreCase(String email);
+
     List<Owner> findByActiveTrueOrderByFullNameAsc();
 
     List<Owner> findByFullNameContainingIgnoreCaseOrDocumentContainingIgnoreCase(String fullName, String document);

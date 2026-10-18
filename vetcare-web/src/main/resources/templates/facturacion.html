@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Facturacion')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container py-4">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <h4 class="mb-3">Facturacion</h4>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card p-3">
+                <span class="small-label">Facturado</span>
+                <div class="fs-5 fw-semibold" th:text="'$ ' + ${portfolio.billed}">0</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <span class="small-label">Cobrado</span>
+                <div class="fs-5 fw-semibold text-success" th:text="'$ ' + ${portfolio.collected}">0</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3">
+                <span class="small-label">Pendiente</span>
+                <div class="fs-5 fw-semibold text-danger" th:text="'$ ' + ${portfolio.pending}">0</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-white fw-semibold">Emitir factura</div>
+        <div class="card-body">
+            <form class="row g-3" method="post" th:action="@{/facturacion}">
+                <div class="col-md-4">
+                    <label class="form-label">Dueno</label>
+                    <select class="form-select" id="ownerId" required>
+                        <option value="">Seleccione...</option>
+                        <option th:each="o : ${owners}" th:value="${o.id}" th:text="${o.fullName}">Ana</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Paciente</label>
+                    <select class="form-select" id="petId" name="petId" required>
+                        <option value="">Seleccione un dueno primero</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Servicio</label>
+                    <select class="form-select" name="rateId" required>
+                        <option th:each="r : ${rates}" th:value="${r.id}"
+                                th:text="${r.name} + ' · $' + ${r.price}">Consulta</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Cantidad</label>
+                    <input class="form-control" name="quantity" type="number" min="1" value="1">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Fecha de atencion</label>
+                    <input class="form-control" name="consultationDate" type="date" th:value="${today}">
+                </div>
+                <div class="col-md-5 d-flex align-items-end">
+                    <button class="btn btn-primary" type="submit">Emitir factura</button>
+                    <span class="small text-muted ms-2">El IVA se calcula solo sobre productos.</span>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-white fw-semibold">Facturas</div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Numero</th><th>Paciente</th><th>Fecha</th><th>Total</th><th>Saldo</th><th>Estado</th><th></th></tr></thead>
+                <tbody>
+                <tr th:each="i : ${invoices}">
+                    <td th:text="${i.number}">FV-000001</td>
+                    <td th:text="${i.petName}">Luna</td>
+                    <td class="small" th:text="${i.consultationDate}">2026-10-18</td>
+                    <td th:text="'$ ' + ${i.total}">0</td>
+                    <td th:text="'$ ' + ${i.balance}">0</td>
+                    <td>
+                        <span class="badge" th:classappend="${i.status == 'PAGADA'} ? ' bg-success' : (${i.status == 'ANULADA'} ? ' bg-secondary' : ' bg-warning text-dark')"
+                              th:text="${i.statusLabel}">Emitida</span>
+                    </td>
+                    <td class="text-end"><a class="btn btn-sm btn-outline-secondary" th:href="@{/facturacion/{id}(id=${i.id})}">Ver</a></td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(invoices)}"><td colspan="7" class="text-center text-muted py-4">Sin facturas</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: scripts}"></div>
+<script>
+    const ownerSelect = document.getElementById('ownerId');
+    const petSelect = document.getElementById('petId');
+    ownerSelect.addEventListener('change', async () => {
+        petSelect.innerHTML = '<option value="">Cargando...</option>';
+        if (!ownerSelect.value) return;
+        const response = await fetch('/facturacion/pets?ownerId=' + encodeURIComponent(ownerSelect.value));
+        const pets = await response.json();
+        petSelect.innerHTML = pets.length
+            ? pets.map(p => `<option value="${p.id}">${p.name} · ${p.species}</option>`).join('')
+            : '<option value="">Sin mascotas registradas</option>';
+    });
+</script>
+</body>
+</html>

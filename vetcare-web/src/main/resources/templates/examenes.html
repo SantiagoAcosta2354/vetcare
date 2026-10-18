@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Examenes')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container py-4">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <h4 class="mb-3">Laboratorio</h4>
+
+    <div class="card mb-4">
+        <div class="card-header bg-white fw-semibold">Ordenes pendientes</div>
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead><tr><th>Paciente</th><th>Examen</th><th>Ordenado</th><th style="width:45%">Resultado</th></tr></thead>
+                <tbody>
+                <tr th:each="o : ${pending}">
+                    <td th:text="${o.petName}">Luna</td>
+                    <td th:text="${o.examName}">Hemograma</td>
+                    <td class="small text-muted" th:text="${o.orderedAt}">fecha</td>
+                    <td>
+                        <form class="d-flex gap-1" method="post" th:action="@{/examenes/{id}/resultado(id=${o.id})}">
+                            <input class="form-control form-control-sm" name="values" placeholder="Valores" required>
+                            <input class="form-control form-control-sm" name="observations" placeholder="Observaciones">
+                            <button class="btn btn-sm btn-primary" type="submit">Registrar</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(pending)}">
+                    <td colspan="4" class="text-center text-muted py-4">No hay examenes pendientes</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-white fw-semibold">Resultados entregados</div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" th:each="o : ${delivered}">
+                <div class="d-flex justify-content-between">
+                    <strong th:text="${o.petName} + ' · ' + ${o.examName}">Luna · Hemograma</strong>
+                    <span class="small text-muted" th:text="${o.resultAt}">fecha</span>
+                </div>
+                <div class="small" th:text="${o.resultValues}">Valores</div>
+                <div class="small text-muted" th:if="${o.resultObservations}" th:text="${o.resultObservations}"></div>
+            </li>
+            <li class="list-group-item text-muted" th:if="${#lists.isEmpty(delivered)}">Sin resultados registrados</li>
+        </ul>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>

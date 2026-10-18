@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Tablero')}"></head>
+<body>
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div class="container py-4">
+    <div th:replace="~{fragments/layout :: alerts}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="mb-0">Tablero</h4>
+            <p class="text-muted small mb-0" th:text="'Hoy ' + ${today}"></p>
+        </div>
+        <a class="btn btn-outline-primary btn-sm" th:href="@{/agenda}">Ver agenda</a>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <span class="small-label">Citas de hoy</span>
+                <div class="fs-3 fw-semibold" th:text="${summary.total}">0</div>
+                <span class="small text-muted" th:text="'Atendidas: ' + ${summary.attended}"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <span class="small-label">Facturado</span>
+                <div class="fs-4 fw-semibold" th:text="'$ ' + ${portfolio.billed}">0</div>
+                <span class="small text-muted" th:text="${portfolio.invoices} + ' facturas vigentes'"></span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <span class="small-label">Cobrado</span>
+                <div class="fs-4 fw-semibold text-success" th:text="'$ ' + ${portfolio.collected}">0</div>
+                <span class="small text-muted">Pagos aplicados</span>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 h-100">
+                <span class="small-label">Cartera pendiente</span>
+                <div class="fs-4 fw-semibold text-danger" th:text="'$ ' + ${portfolio.pending}">0</div>
+                <span class="small text-muted">Saldo por cobrar</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card">
+                <div class="card-header bg-white fw-semibold">Agenda del dia</div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead><tr><th>Hora</th><th>Paciente</th><th>Dueno</th><th>Profesional</th><th>Estado</th></tr></thead>
+                        <tbody>
+                        <tr th:each="item : ${appointments}">
+                            <td th:text="${item.startTime}">09:00</td>
+                            <td th:text="${item.petName}">Luna</td>
+                            <td th:text="${item.ownerName}">Ana</td>
+                            <td th:text="${item.professionalName}">Dra.</td>
+                            <td><span class="badge badge-soft" th:text="${item.statusLabel}">Agendada</span></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(appointments)}">
+                            <td colspan="5" class="text-center text-muted py-4">Sin citas registradas para hoy</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card mb-3">
+                <div class="card-header bg-white fw-semibold">Proximas dosis (30 dias)</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between" th:each="v : ${upcoming}">
+                        <span th:text="${v.petName} + ' · ' + ${v.vaccineName}">Luna · Rabia</span>
+                        <span class="text-muted small" th:text="${v.nextDoseAt}">2026-11-01</span>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(upcoming)}">Sin refuerzos proximos</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-white fw-semibold">Alertas de farmacia</div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item" th:each="a : ${alerts}">
+                        <div class="d-flex justify-content-between">
+                            <strong th:text="${a.medicationName}">Medicamento</strong>
+                            <span class="badge bg-warning text-dark" th:text="${a.type}">STOCK_BAJO</span>
+                        </div>
+                        <div class="small text-muted" th:text="${a.message}">Mensaje</div>
+                    </li>
+                    <li class="list-group-item text-muted" th:if="${#lists.isEmpty(alerts)}">Sin alertas</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
