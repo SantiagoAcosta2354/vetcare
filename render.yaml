@@ -1,0 +1,58 @@
+# render.yaml
+# Despliegue de VetCare en Render. Cada servicio se construye desde su propio
+# Dockerfile y su propia carpeta (monorepo).
+#
+# Decisiones que conviene entender antes de tocar el archivo:
+#
+# 1. Los servicios se agrupan en un proyecto propio para no mezclarse con los
+#    recursos que ya existan en la cuenta.
+#
+# 2. No hay credenciales escritas aqui. La cadena de MongoDB se pide al crear el
+#    Blueprint (sync: false) y el secreto JWT lo genera Render UNA sola vez en
+#    vetcare-usuarios; los demas lo copian con fromService. Si cada servicio
+#    generara su propio secreto, la firma no coincidiria y todo responderia 401.
+#
+# 3. Las URLs entre servicios se resuelven con RENDER_EXTERNAL_URL del servicio
+#    de destino: en el plan gratuito no hay red privada y Render puede anadir un
+#    sufijo al subdominio.
+#
+# 4. Los tiempos de espera se suben por encima del valor de desarrollo porque un
+#    servicio gratuito suspendido tarda alrededor de un minuto en despertar.
+
+projects:
+  - name: vetcare
+    environments:
+      - name: produccion
+        services:
+          # ---------------------------------------------------------- usuarios
+          - type: web
+            name: vetcare-usuarios
+            runtime: docker
+            plan: free
+            rootDir: vetcare-usuarios
+            healthCheckPath: /actuator/health
+            envVars:
+              - key: VETCARE_MONGO_URI
+                sync: false
+              - key: VETCARE_JWT_SECRET
+                generateValue: true
+              - key: VETCARE_ADMIN_EMAIL
+                value: admin@vetcare.co
+              - key: VETCARE_ADMIN_PASSWORD
+                sync: false
+
+          # --------------------------------------------------------- pacientes
+          - type: web
+            name: vetcare-pacientes
+            runtime: docker
+            plan: free
+            rootDir: vetcare-pacientes
+            healthCheckPath: /actuator/health
+            envVars:
+              - key: VETCARE_MONGO_URI
+                sync: false
+              - key: VETCARE_JWT_SECRET
+                fromService:
+                  type: web
+                  name: vetcare-usuarios
+                  envVarKey: VETCARE_JWT_SECRET
