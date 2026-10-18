@@ -9,18 +9,16 @@ compartido.
 - Documentacion de la API: `/swagger-ui.html`
 - Puerto local: `8081`
 
-## Perfiles del sistema (5)
+## Perfiles del sistema (6)
 
 | Rol | Que hace | Limite |
 |---|---|---|
 | `ADMIN` | Gestiona usuarios, tarifas, sedes y parametros; consulta el tablero | No edita una historia cerrada ni una factura pagada |
 | `RECEPCION` | Duenos, mascotas, agenda, check-in, cobro y factura | No registra diagnosticos ni formulas |
 | `VETERINARIO` | Historia clinica, diagnostico, formula, examenes y vacunas | No despacha medicamentos ni anula facturas |
+| `LABORATORIO` | Recibe ordenes de examen, registra resultados y los asocia al paciente | No interpreta, no diagnostica y no cobra |
 | `FARMACIA` | Despacha formulas, controla lotes y vencimientos | No formula ni modifica precios |
 | `DUENO` | Portal con sus mascotas, proximas dosis y facturas | No ve historias de otros pacientes |
-
-El perfil de auxiliar de laboratorio se integro al veterinario: es quien ordena el
-examen y responde por el resultado, de modo que el sistema queda en cinco roles.
 
 ## Variables de entorno
 
@@ -41,6 +39,7 @@ examen y responde por el resultado, de modo que el sistema queda en cinco roles.
 | `admin@vetcare.co` | ADMIN |
 | `recepcion@vetcare.co` | RECEPCION |
 | `veterinario@vetcare.co` | VETERINARIO |
+| `laboratorio@vetcare.co` | LABORATORIO |
 | `farmacia@vetcare.co` | FARMACIA |
 | `dueno@vetcare.co` | DUENO |
 
@@ -55,7 +54,7 @@ Todas salvo la administradora comparten la contrasena de demostracion.
 | GET | `/api/v1/users/me` | Autenticado | Cuenta propia |
 | PATCH | `/api/v1/users/me` | Autenticado | Nombre y telefono propios |
 | PATCH | `/api/v1/users/me/password` | Autenticado | Cambio de contrasena con la actual |
-| GET | `/api/v1/users/staff?role=` | ADMIN, RECEPCION, VETERINARIO | Personal activo por rol (agenda) |
+| GET | `/api/v1/users/staff?role=` | ADMIN, RECEPCION, VETERINARIO, LABORATORIO | Personal activo por rol (agenda) |
 | GET | `/api/v1/users` | ADMIN | Lista de cuentas |
 | GET | `/api/v1/users/{id}` | ADMIN | Detalle de una cuenta |
 | POST | `/api/v1/users` | ADMIN | Crea una cuenta con perfiles |

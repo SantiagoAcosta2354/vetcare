@@ -55,6 +55,8 @@ public class UserSeeder {
             created += createIfMissing("Administrador VetCare", adminEmail, adminPassword, Set.of(Role.ADMIN));
             created += createIfMissing("Recepcion VetCare", "recepcion@vetcare.co", demoPassword, Set.of(Role.RECEPCION));
             created += createIfMissing("Dra. Laura Gomez", "veterinario@vetcare.co", demoPassword, Set.of(Role.VETERINARIO));
+            created += createIfMissing("Auxiliar de laboratorio", "laboratorio@vetcare.co", demoPassword,
+                    Set.of(Role.LABORATORIO));
             created += createIfMissing("Farmacia VetCare", "farmacia@vetcare.co", demoPassword, Set.of(Role.FARMACIA));
             created += createIfMissing("Dueno de prueba", "dueno@vetcare.co", demoPassword, Set.of(Role.DUENO));
             if (created == 0) {
