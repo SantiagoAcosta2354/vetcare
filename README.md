@@ -130,6 +130,22 @@ El flujo de la sustentacion es: agendar (recepcion) -> atender y formular
 (veterinario) -> despachar (farmacia) -> registrar resultado (laboratorio) ->
 facturar y cobrar (recepcion) -> consultar (dueno).
 
+## En vivo (Render)
+
+| Servicio | URL |
+|---|---|
+| **Portal web** | https://vetcare-web-yefk.onrender.com |
+| usuarios | https://vetcare-usuarios.onrender.com |
+| pacientes | https://vetcare-pacientes.onrender.com |
+| clinica | https://vetcare-clinica.onrender.com |
+| farmacia | https://vetcare-farmacia.onrender.com |
+| facturacion | https://vetcare-facturacion.onrender.com |
+
+La base es un cluster **M0 gratuito** de MongoDB Atlas exclusivo del proyecto
+(`vetcare`), con una base por servicio. En el plan gratuito los servicios se
+suspenden por inactividad: el primer acceso del dia tarda alrededor de un minuto
+y conviene despertarlos antes de la sustentacion.
+
 ## Despliegue en Render
 
 `render.yaml` declara los servicios del monorepo. Al sincronizar el Blueprint,
